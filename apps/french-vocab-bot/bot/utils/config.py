@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 # Locate app and repository roots
 APP_ROOT = Path(__file__).resolve().parent.parent.parent
-REPO_ROOT = APP_ROOT.parent
+REPO_ROOT = APP_ROOT.parent.parent
 
 # Load .env from app root if it exists
 _env_file = APP_ROOT / ".env"

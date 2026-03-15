@@ -11,7 +11,8 @@ Structured French learning assets based on Lonsdale, D., Le Bras, Y. A. — A Fr
 │   ├── interim/             # intermediate extraction artifacts
 │   └── processed/           # final JSON datasets
 ├── docs/                    # extraction instructions and task notes
-├── french-vocab-bot/        # Telegram bot application
+├── apps/
+│   └── french-vocab-bot/    # Telegram bot application
 ├── tools/
 │   └── extraction/          # reusable extraction/enrichment scripts
 ├── .gitignore
@@ -26,12 +27,12 @@ Structured French learning assets based on Lonsdale, D., Le Bras, Y. A. — A Fr
 
 ## Bot application
 
-The Telegram bot lives in `french-vocab-bot/` and uses:
+The Telegram bot lives in `apps/french-vocab-bot/` and uses:
 
 - `db/app.db` for SQLite storage.
 - `data/processed/french_frequency_dictionary.json` as the default import source.
 
-Create `french-vocab-bot/.env` from `.env.example`, then run the bot from `french-vocab-bot/`.
+Create `apps/french-vocab-bot/.env` from `.env.example`, then run the bot from `apps/french-vocab-bot/`.
 
 ## Extraction tools
 
