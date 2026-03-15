@@ -6,9 +6,9 @@ from pathlib import Path
 
 from deep_translator import GoogleTranslator
 
-BASE_DIR = Path(r"F:\Personal\BOOKS\Fr\5000")
-INTERMEDIATE_PATH = BASE_DIR / "french_frequency_dictionary.intermediate.json"
-FINAL_PATH = BASE_DIR / "french_frequency_dictionary.json"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+INTERMEDIATE_PATH = REPO_ROOT / "data" / "interim" / "french_frequency_dictionary.intermediate.json"
+FINAL_PATH = REPO_ROOT / "data" / "processed" / "french_frequency_dictionary.json"
 
 _thread_local = threading.local()
 

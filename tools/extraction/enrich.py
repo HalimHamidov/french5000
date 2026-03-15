@@ -15,13 +15,15 @@ import json
 import sys
 import time
 import re
+from pathlib import Path
 import gruut
 from deep_translator import GoogleTranslator
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-INPUT_PATH  = r'F:\Personal\BOOKS\Fr\5000\french_frequency.json'
-OUTPUT_PATH = r'F:\Personal\BOOKS\Fr\5000\french_frequency_dictionary.json'
+REPO_ROOT = Path(__file__).resolve().parents[2]
+INPUT_PATH = REPO_ROOT / 'data' / 'interim' / 'french_frequency.json'
+OUTPUT_PATH = REPO_ROOT / 'data' / 'processed' / 'french_frequency_dictionary.json'
 
 # ---------------------------------------------------------------------------
 # POS normalisation

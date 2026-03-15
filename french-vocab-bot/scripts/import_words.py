@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-import_words.py — Load french_frequency.json into the SQLite database.
+import_words.py — Load the processed French dictionary JSON into SQLite.
 
 Usage:
     python scripts/import_words.py [--data PATH] [--db PATH]
 
-This script reads the JSON file and upserts all words with rank 1–5000
+This script reads the processed JSON file and upserts all words with rank 1–5000
 into the `words` table. It is safe to run multiple times (idempotent).
 """
 from __future__ import annotations
@@ -19,6 +19,7 @@ from pathlib import Path
 
 # Allow running from project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = PROJECT_ROOT.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 logging.basicConfig(
@@ -111,8 +112,8 @@ def main() -> None:
     parser.add_argument(
         "--data",
         type=Path,
-        default=PROJECT_ROOT / "data" / "french_frequency.json",
-        help="Path to french_frequency.json",
+        default=REPO_ROOT / "data" / "processed" / "french_frequency_dictionary.json",
+        help="Path to the processed French dictionary JSON",
     )
     parser.add_argument(
         "--db",

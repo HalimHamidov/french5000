@@ -1,12 +1,14 @@
 import re
 import json
 import sys
+from pathlib import Path
 import PyPDF2
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-PDF_PATH = r'F:\Personal\BOOKS\Fr\5000\Lonsdale D., Le Bras Y. A. - Frequency Dictionary of French - 2009.pdf'
-OUTPUT_PATH = r'F:\Personal\BOOKS\Fr\5000\french_frequency.json'
+REPO_ROOT = Path(__file__).resolve().parents[2]
+PDF_PATH = REPO_ROOT / 'data' / 'raw' / 'Lonsdale D., Le Bras Y. A. - Frequency Dictionary of French - 2009.pdf'
+OUTPUT_PATH = REPO_ROOT / 'data' / 'interim' / 'french_frequency.json'
 
 # All known POS tokens (with optional gender/number markers)
 POS_TOKEN = r'(?:nadj|adj|adv|conj|det|intj|nfm|nmf|nf|nmi|nm|prep|pro|v|art|num|excl|pfx|sfx|adji|interj|pron|nmp|nfp|nmpl|nfpl)(?:\((?:f|m|pl|fpl|mpl)\))?'

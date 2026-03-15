@@ -6,11 +6,11 @@ from pathlib import Path
 import gruut
 from deep_translator import GoogleTranslator
 
-BASE_DIR = Path(r"F:\Personal\BOOKS\Fr\5000")
-INPUT_PATH = BASE_DIR / "french_frequency.json"
-INTERMEDIATE_PATH = BASE_DIR / "french_frequency_dictionary.intermediate.json"
-OUTPUT_PATH = BASE_DIR / "french_frequency_dictionary.json"
-CKPT_PATH = BASE_DIR / "enrich_progress.json"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+INPUT_PATH = REPO_ROOT / "data" / "interim" / "french_frequency.json"
+INTERMEDIATE_PATH = REPO_ROOT / "data" / "interim" / "french_frequency_dictionary.intermediate.json"
+OUTPUT_PATH = REPO_ROOT / "data" / "processed" / "french_frequency_dictionary.json"
+CKPT_PATH = REPO_ROOT / "data" / "interim" / "enrich_progress.json"
 
 POS_MAP = {
     "nm": "noun",

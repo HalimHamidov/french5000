@@ -1,7 +1,10 @@
 .venv/
 __pycache__/
+**/__pycache__/
 *.pyc
 
-enrich_progress.json
+data/interim/enrich_progress.json
+data/interim/french_frequency_dictionary.intermediate.json
 
-Lonsdale D., Le Bras Y. A. - Frequency Dictionary of French - 2009.pdf
+data/raw/Lonsdale D., Le Bras Y. A. - Frequency Dictionary of French - 2009.pdf
+

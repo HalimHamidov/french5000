@@ -3,11 +3,12 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Locate project root (two levels up from this file: bot/utils -> bot -> root)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Locate app and repository roots
+APP_ROOT = Path(__file__).resolve().parent.parent.parent
+REPO_ROOT = APP_ROOT.parent
 
-# Load .env from project root if it exists
-_env_file = PROJECT_ROOT / ".env"
+# Load .env from app root if it exists
+_env_file = APP_ROOT / ".env"
 load_dotenv(dotenv_path=_env_file, override=False)
 
 
@@ -25,13 +26,20 @@ def _get(key: str, default: str = "") -> str:
     return os.getenv(key, default)
 
 
+def _resolve_path(root: Path, value: str) -> Path:
+    path = Path(value)
+    if path.is_absolute():
+        return path
+    return root / path
+
+
 # --- Required ---
 BOT_TOKEN: str = _require("BOT_TOKEN")
 ADMIN_CHAT_ID: int = int(_require("ADMIN_CHAT_ID"))
 
 # --- Optional with defaults ---
-DB_PATH: Path = PROJECT_ROOT / _get("DB_PATH", "db/app.db")
-DATA_PATH: Path = PROJECT_ROOT / _get("DATA_PATH", "data/french_frequency.json")
+DB_PATH: Path = _resolve_path(APP_ROOT, _get("DB_PATH", "db/app.db"))
+DATA_PATH: Path = _resolve_path(REPO_ROOT, _get("DATA_PATH", "data/processed/french_frequency_dictionary.json"))
 
 TIMEZONE: str = _get("TIMEZONE", "UTC")
 WORDS_PER_DAY: int = int(_get("WORDS_PER_DAY", "12"))
