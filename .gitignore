@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+
+enrich_progress.json
+
+Lonsdale D., Le Bras Y. A. - Frequency Dictionary of French - 2009.pdf
