@@ -12,7 +12,8 @@ Structured French learning assets based on Lonsdale, D., Le Bras, Y. A. — A Fr
 │   └── processed/           # final JSON datasets
 ├── docs/                    # extraction instructions and task notes
 ├── apps/
-│   └── french-vocab-bot/    # Telegram bot application
+│   ├── french-vocab-bot/    # Telegram bot application
+│   └── french-vocab-mobile/ # Android app (Capacitor)
 ├── tools/
 │   └── extraction/          # reusable extraction/enrichment scripts
 ├── .gitignore
@@ -24,6 +25,42 @@ Structured French learning assets based on Lonsdale, D., Le Bras, Y. A. — A Fr
 - `data/interim/french_frequency.json`: raw frequency extraction from the PDF.
 - `data/processed/french_frequency_dictionary.json`: enriched frequency dictionary.
 - `data/processed/french_thematic_vocabulary.json`: thematic vocabulary lists with rank cross-links.
+
+## Mobile app (Android)
+
+The Android app lives in `apps/french-vocab-mobile/` and is built with Capacitor 8 (WebView wrapper).
+
+**Features:**
+- Spaced repetition (1→3→7→14→30→60 day intervals)
+- 27 thematic vocabulary categories
+- EN→FR reverse mode (English prompt, reveal French)
+- Daily reminder notifications
+- Search across all 5000 words
+- Paris background UI
+
+**Run locally (browser):**
+```bash
+cd apps/french-vocab-mobile
+npm run dev          # serves on http://localhost:3000
+```
+
+**Build APK (debug):**
+```bash
+cd apps/french-vocab-mobile
+JAVA_HOME="..." npx cap sync android
+cd android && ./gradlew assembleDebug
+# Output: android/app/build/outputs/apk/debug/french5000-v1.0-debug.apk
+```
+
+**Build AAB (Google Play release):**
+```bash
+cd apps/french-vocab-mobile
+JAVA_HOME="..." npx cap sync android
+cd android && ./gradlew bundleRelease
+# Output: android/app/build/outputs/bundle/release/app-release.aab
+```
+
+> **Important:** The signing keystore (`android/app/french5000.keystore`) is gitignored. Keep it safe — losing it means you cannot publish updates.
 
 ## Bot application
 
