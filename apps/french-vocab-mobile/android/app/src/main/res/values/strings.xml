@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">French 5000</string>
+    <string name="title_activity_main">French 5000</string>
+    <string name="package_name">com.french5000.vocab</string>
+    <string name="custom_url_scheme">com.french5000.vocab</string>
+</resources>

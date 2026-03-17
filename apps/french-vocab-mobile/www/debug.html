@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Debug</title></head>
+<body style="font-family:monospace;padding:20px;background:#f5e6c8">
+<h2>Debug</h2>
+<pre id="log"></pre>
+<script type="module">
+const log = document.getElementById('log');
+function p(msg) { log.textContent += msg + '\n'; console.log(msg); }
+
+p('1. Module loaded');
+
+try {
+  p('2. Importing storage…');
+  const { Storage } = await import('./js/storage.js');
+  p('3. Storage OK: ' + typeof Storage.getSettings);
+
+  p('4. Importing loader…');
+  const { loadFrequencyData, loadThematicData, shouldExclude } = await import('./js/loader.js');
+  p('5. Loader OK');
+
+  p('6. Importing scheduler…');
+  const { Scheduler } = await import('./js/scheduler.js');
+  p('7. Scheduler OK');
+
+  p('8. Fetching frequency data…');
+  const words = await loadFrequencyData();
+  p('9. Words loaded: ' + words.length);
+
+  p('10. Fetching thematic data…');
+  const themes = await loadThematicData();
+  p('11. Themes loaded: ' + Object.keys(themes).length);
+
+  p('12. Building scheduler…');
+  const sched = new Scheduler(words);
+  p('13. Scheduler built');
+
+  p('14. Getting settings…');
+  const settings = Storage.getSettings();
+  p('15. Settings: ' + JSON.stringify(settings));
+
+  p('16. Building queue…');
+  const states = Storage.getWordStates();
+  const queue = sched.buildDailyQueue(settings.wordsPerDay, states);
+  p('17. Queue length: ' + queue.length);
+
+  p('\n✅ ALL STEPS OK — ready to run app');
+} catch(e) {
+  p('\n❌ ERROR: ' + e.message);
+  p('Stack: ' + e.stack);
+}
+</script>
+</body></html>

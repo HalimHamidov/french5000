@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>French 5000</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading-overlay">
+  <div class="spin"></div>
+  <div class="load-text">Loading vocabulary…</div>
+</div>
+
+<!-- ═══ APP SHELL (centered on desktop) ═══ -->
+<div id="app">
+
+  <!-- ── MAIN SCREEN ── -->
+  <div id="screen-main" class="screen hidden">
+
+    <!-- Header -->
+    <div id="header">
+      <div id="header-top">
+        <span id="header-icon">🇫🇷</span>
+        <span id="header-title">French 5000</span>
+      </div>
+      <div id="header-sub">One word at a time · spaced repetition</div>
+    </div>
+
+    <!-- Theme session banner (hidden by default) -->
+    <div id="theme-banner" class="hidden">
+      <span id="theme-banner-title">Theme</span>
+      <button id="btn-exit-theme">✕ Exit theme</button>
+    </div>
+
+    <!-- Card -->
+    <div id="card-wrap">
+      <div id="word-card">
+
+        <!-- Meta row: rank + NEW/REVIEW badge -->
+        <div id="card-meta">
+          <span id="rank-label">#1</span>
+          <span id="mode-badge" class="badge-new">NEW</span>
+        </div>
+
+        <!-- Action buttons with subtitles -->
+        <div id="action-row">
+          <button id="btn-remove" class="act-btn act-remove">
+            <span class="act-main">Remove</span>
+            <span class="act-sub">no repeats</span>
+          </button>
+          <button id="btn-next-batch-card" class="act-btn act-review">
+            <span class="act-main">Next Batch</span>
+            <span class="act-sub">load next words</span>
+          </button>
+          <button id="btn-next" class="act-btn act-next">
+            <span class="act-main">Next</span>
+            <span id="next-sub" class="act-sub">≈1 day</span>
+          </button>
+        </div>
+
+        <!-- Word -->
+        <div id="word-display">—</div>
+
+        <!-- IPA (optional, small) -->
+        <div id="ipa-display" class="ipa-inline hidden"></div>
+
+        <!-- Translation toggle -->
+        <button id="btn-show-translation" class="reveal-btn">
+          <span class="reveal-arrow">&#9658;</span> Show translation
+        </button>
+        <div id="translation-block" class="hidden">
+          <div id="translation-ru" class="trans-ru"></div>
+          <div id="translation-en" class="trans-en"></div>
+        </div>
+
+        <!-- Example (always visible) -->
+        <div id="example-display" class="example-text"></div>
+
+        <!-- Task prompt -->
+        <div id="task-line" class="task-line">Task: make your own sentence with this word.</div>
+
+      </div><!-- /word-card -->
+
+      <!-- Empty state (shown when queue empty) -->
+      <div id="empty-state" class="hidden">
+        <div class="empty-icon">🎉</div>
+        <div class="empty-title">All done for today!</div>
+        <div class="empty-sub">Come back tomorrow for your next session.</div>
+      </div>
+
+    </div><!-- /card-wrap -->
+
+    <!-- Nav strip -->
+    <div id="nav-strip">
+      <button id="btn-prev" class="nav-btn" disabled>Previous</button>
+      <span id="nav-counter">1 / 15</span>
+      <button id="btn-nav-next" class="nav-btn" disabled>Next</button>
+    </div>
+
+    <!-- Controls panel -->
+    <div id="controls">
+
+      <!-- Search row -->
+      <div id="search-row">
+        <input type="text" id="search-input" placeholder="Search in 5000 words (word / translation…)" autocomplete="off" autocorrect="off" spellcheck="false">
+        <button id="btn-search-go">Search</button>
+        <button id="btn-search-clear">Clear</button>
+      </div>
+
+      <!-- Menu grid (2 col) -->
+      <div id="menu-grid">
+        <button class="menu-btn" data-action="today">Today</button>
+        <button class="menu-btn" data-action="review">Review</button>
+        <button class="menu-btn" data-action="themes">📚 Themes</button>
+        <button class="menu-btn" data-action="stats">Stats</button>
+        <button class="menu-btn" data-action="help" style="grid-column:span 2">Help</button>
+      </div>
+
+      <!-- Reminder -->
+      <div id="reminder-label">Reminder</div>
+      <div id="reminder-row">
+        <button id="btn-reminder-off" class="rem-btn active">Off</button>
+        <input type="time" id="reminder-time" value="09:00" aria-label="Reminder time">
+        <button id="btn-reminder-on" class="rem-btn">On</button>
+      </div>
+
+      <!-- Status line -->
+      <div id="status-line">Loading…</div>
+
+    </div><!-- /controls -->
+
+  </div><!-- /screen-main -->
+
+
+  <!-- ── STATS SCREEN ── -->
+  <div id="screen-stats" class="screen hidden">
+    <div class="screen-header">
+      <button class="back-btn" data-back="main">&#8592; Back</button>
+      <span class="screen-title">Stats</span>
+    </div>
+    <div id="stats-content" class="screen-body"></div>
+  </div>
+
+  <!-- ── SEARCH RESULTS SCREEN ── -->
+  <div id="screen-search" class="screen hidden">
+    <div class="screen-header">
+      <button class="back-btn" data-back="main">&#8592; Back</button>
+      <span class="screen-title">Search results</span>
+    </div>
+    <div id="search-results" class="screen-body"></div>
+  </div>
+
+  <!-- ── THEMES SCREEN ── -->
+  <div id="screen-themes" class="screen hidden">
+    <div class="screen-header">
+      <button class="back-btn" data-back="main">&#8592; Back</button>
+      <span class="screen-title">📚 Thematic Vocabulary</span>
+    </div>
+    <div id="themes-content" class="screen-body"></div>
+  </div>
+
+  <!-- ── HELP SCREEN ── -->
+  <div id="screen-help" class="screen hidden">
+    <div class="screen-header">
+      <button class="back-btn" data-back="main">&#8592; Back</button>
+      <span class="screen-title">Help</span>
+    </div>
+    <div id="help-content" class="screen-body"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
