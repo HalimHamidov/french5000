@@ -7,3 +7,5 @@ android/.idea/
 *.apk
 *.aab
 www/data/
+# Keystore — keep this file safe, never commit it
+android/app/*.keystore
