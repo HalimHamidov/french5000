@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>French 5000</title>
   <link rel="stylesheet" href="css/style.css">
@@ -75,9 +75,11 @@
         <div id="translation-block" class="hidden">
           <div id="translation-ru" class="trans-ru"></div>
           <div id="translation-en" class="trans-en"></div>
+          <!-- Example translations revealed together with word translation -->
+          <div id="example-translations" class="example-text example-revealed"></div>
         </div>
 
-        <!-- Example (always visible) -->
+        <!-- French example sentence (always visible) -->
         <div id="example-display" class="example-text"></div>
 
         <!-- Task prompt -->
@@ -117,11 +119,12 @@
         <button class="menu-btn" data-action="review">Review</button>
         <button class="menu-btn" data-action="themes">📚 Themes</button>
         <button class="menu-btn" data-action="stats">Stats</button>
-        <button class="menu-btn" data-action="help" style="grid-column:span 2">Help</button>
+        <button class="menu-btn" id="btn-reverse-mode" data-action="reverse">🔄 EN→FR</button>
+        <button class="menu-btn" data-action="help">Help</button>
       </div>
 
       <!-- Reminder -->
-      <div id="reminder-label">Reminder</div>
+      <div id="reminder-label">Reminder <span id="reminder-status"></span></div>
       <div id="reminder-row">
         <button id="btn-reminder-off" class="rem-btn active">Off</button>
         <input type="time" id="reminder-time" value="09:00" aria-label="Reminder time">
@@ -174,6 +177,33 @@
 
 </div><!-- /app -->
 
+<script>
+// Global error trap — catches module import failures and unhandled rejections
+// before app.js even starts. Must be non-module so it runs immediately.
+function _showErr(msg) {
+  var el = document.querySelector('.load-text');
+  var sp = document.querySelector('.spin');
+  if (sp) sp.style.display = 'none';
+  if (el) {
+    el.style.cssText = 'font-size:13px;color:#7a1020;max-width:300px;text-align:left;white-space:pre-wrap;word-break:break-all';
+    el.textContent = msg;
+  }
+}
+window.onerror = function(msg, src, line, col, err) {
+  _showErr('JS Error:\n' + msg + '\n' + (src||'') + ':' + line);
+  return false;
+};
+window.addEventListener('unhandledrejection', function(e) {
+  _showErr('Promise Error:\n' + ((e.reason && e.reason.message) || String(e.reason)));
+});
+// Timeout: if init hasn't hidden the overlay in 15s, show a hint
+setTimeout(function() {
+  var ov = document.getElementById('loading-overlay');
+  if (ov && !ov.classList.contains('hidden')) {
+    _showErr('Timeout — app did not start.\nCheck: JS modules support, fetch, data files.\nUA: ' + navigator.userAgent.slice(0,120));
+  }
+}, 15000);
+</script>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>

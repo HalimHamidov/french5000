@@ -56,6 +56,7 @@ const state = {
   words: [], themes: {},
   wordStates: {}, session: null, settings: {},
   showTranslation: false, showIPA: false,
+  reverseMode: false,
   currentScreen: 'main',
 };
 let scheduler = null;
@@ -305,50 +306,78 @@ function renderCard() {
   state.showTranslation = false;
   state.showIPA = false;
 
-  // Rank + mode badge
+  // Rank + mode badge — use live word state so pressing Next updates it
   $('rank-label').textContent = `#${word.rank}`;
-  const mb = $('mode-badge');
-  mb.textContent = item.mode === 'review' ? 'REVIEW' : 'NEW';
-  mb.className   = item.mode === 'review' ? 'badge-review' : 'badge-new';
+  const mb  = $('mode-badge');
+  const ws  = state.wordStates[item.id];
+  const st  = ws?.status;
+  if (!st || st === 'new') {
+    mb.textContent = 'NEW';       mb.className = 'badge-new';
+  } else if (st === 'learning') {
+    const step = ws.step ?? 1;
+    const days = [1,3,7,14,30,60][Math.min(step, 5)];
+    mb.textContent = `LEARNING · +${days}d`; mb.className = 'badge-learning';
+  } else if (st === 'known') {
+    mb.textContent = 'KNOWN';     mb.className = 'badge-known';
+  } else if (st === 'removed') {
+    mb.textContent = 'REMOVED';   mb.className = 'badge-removed';
+  } else {
+    mb.textContent = item.mode === 'review' ? 'REVIEW' : 'NEW';
+    mb.className   = item.mode === 'review' ? 'badge-review' : 'badge-new';
+  }
 
-  // Word
-  $('word-display').textContent = word.word;
-
-  // IPA
+  // Word display — normal or reverse mode
   const ipaEl = $('ipa-display');
-  ipaEl.textContent = word.ipa || '';
-  ipaEl.classList.toggle('hidden', !word.ipa);
+  const btnTrans = $('btn-show-translation');
+  const transBlock = $('translation-block');
+  transBlock.classList.add('hidden');
+  btnTrans.innerHTML = '<span class="reveal-arrow">&#9658;</span> Show answer';
 
-  // Translation block — hidden
-  $('translation-ru').textContent = word.translation_ru || '';
-  $('translation-en').textContent = word.translation_en || '';
-  $('translation-block').classList.add('hidden');
-  const ra = $('btn-show-translation').querySelector('.reveal-arrow');
-  if (ra) { ra.classList.remove('open'); }
-  $('btn-show-translation').innerHTML =
-    '<span class="reveal-arrow">&#9658;</span> Show translation';
+  if (state.reverseMode) {
+    // Show English prompt; reveal = French word + IPA + Russian
+    const prompt = word.translation_en || word.translation_ru || word.word;
+    $('word-display').textContent = prompt;
+    $('word-display').style.fontSize = prompt.length > 30 ? '22px' : '28px';
+    ipaEl.classList.add('hidden');
+    $('translation-ru').innerHTML =
+      `<strong style="font-size:1.3em;color:var(--text-dark)">${esc(word.word)}</strong>` +
+      (word.ipa ? ` <span style="color:#6a40b0;font-style:italic">${esc(word.ipa)}</span>` : '');
+    $('translation-en').textContent = word.translation_ru || '';
+  } else {
+    // Normal mode: show French word; reveal = translations
+    $('word-display').textContent = word.word;
+    $('word-display').style.fontSize = '';
+    ipaEl.textContent = word.ipa || '';
+    ipaEl.classList.toggle('hidden', !word.ipa);
+    $('translation-ru').textContent = word.translation_ru || '';
+    $('translation-en').textContent = word.translation_en || '';
+    btnTrans.innerHTML = '<span class="reveal-arrow">&#9658;</span> Show translation';
+  }
 
-  // Example — French italic + Russian in distinct color/style
+  // French example always visible; EN+RU translations hidden until revealed
   const exEl = $('example-display');
-  if (word.example_fr) {
-    exEl.innerHTML =
-      `<span>${esc(word.example_fr)}</span>` +
-      (word.example_en ? `<span class="ex-en">${esc(word.example_en)}</span>` : '') +
-      (word.example_ru ? `<span class="ex-ru">${esc(word.example_ru)}</span>` : '');
+  const exTr = $('example-translations');
+  if (!state.reverseMode && word.example_fr) {
+    exEl.innerHTML = `<span>${esc(word.example_fr)}</span>`;
     exEl.style.display = '';
   } else {
     exEl.innerHTML = '';
     exEl.style.display = 'none';
   }
+  // Pre-fill example translations (shown when translation-block opens)
+  if (exTr) {
+    exTr.innerHTML =
+      (word.example_en ? `<span class="ex-en">${esc(word.example_en)}</span>` : '') +
+      (word.example_ru ? `<span class="ex-ru">${esc(word.example_ru)}</span>` : '');
+  }
 
   // Task line visibility
-  $('task-line').style.display = word.example_fr ? '' : 'none';
+  $('task-line').style.display = (!state.reverseMode && word.example_fr) ? '' : 'none';
 
   // Next button subtitle — interval
   $('next-sub').textContent = `≈${scheduler.nextIntervalLabel(item.id, state.wordStates)}`;
 
-  // Remove button label
-  const ws = state.wordStates[item.id];
+  // Remove button label (ws already declared above for badge)
   const btnRm = $('btn-remove');
   const rmMain = btnRm.querySelector('.act-main');
   const rmSub  = btnRm.querySelector('.act-sub');
@@ -454,6 +483,19 @@ function actionRemoveToggle() {
 function actionToday() {
   rebuildSession(); renderCard(); updateStatus();
   toast(`Today: ${state.session.queue.length} words`);
+}
+
+function toggleReverseMode() {
+  state.reverseMode = !state.reverseMode;
+  const btn = $('btn-reverse-mode');
+  if (btn) {
+    btn.textContent = state.reverseMode ? '🔄 FR→EN' : '🔄 EN→FR';
+    btn.style.background = state.reverseMode ? '#d6eaf8' : '';
+    btn.style.color      = state.reverseMode ? '#174f7a' : '';
+    btn.style.fontWeight = state.reverseMode ? '900'     : '';
+  }
+  renderCard();
+  toast(state.reverseMode ? 'Reverse mode: English → French' : 'Normal mode: French → English');
 }
 
 function actionNextBatch() {
@@ -624,22 +666,76 @@ function renderHelp() {
 //  Reminders
 // ─────────────────────────────────────────────────────────────────
 
-async function enableReminder(time) {
-  if (!('Notification' in window)) { toast('Notifications not supported'); return false; }
-  let p = Notification.permission;
-  if (p === 'default') p = await Notification.requestPermission();
-  if (p !== 'granted') { toast('Notification permission denied'); return false; }
-  state.settings.reminderEnabled = true;
-  state.settings.reminderTime    = time;
-  Storage.setSettings(state.settings);
-  toast(`Reminder set for ${time} ✓`);
-  return true;
+function getLocalNotifications() {
+  // Capacitor plugins are injected on window.Capacitor.Plugins in the WebView
+  return window.Capacitor?.Plugins?.LocalNotifications ?? null;
 }
 
-function disableReminder() {
+async function enableReminder(time) {
+  try {
+    const LN = getLocalNotifications();
+
+    if (LN) {
+      // Android / iOS — use Capacitor LocalNotifications
+      const perm = await LN.requestPermissions();
+      if (perm.display !== 'granted') { toast('Notification permission denied'); return false; }
+
+      await LN.cancel({ notifications: [{ id: 1 }] }).catch(() => {});
+
+      const [hours, minutes] = time.split(':').map(Number);
+      const next = new Date();
+      next.setHours(hours, minutes, 0, 0);
+      if (next <= new Date()) next.setDate(next.getDate() + 1);
+
+      await LN.schedule({
+        notifications: [{
+          id: 1,
+          title: 'French 5000 🇫🇷',
+          body: 'Time for your daily French words!',
+          schedule: { at: next, repeats: true, every: 'day' },
+          smallIcon: 'ic_stat_icon_config_sample',
+        }]
+      });
+    } else if ('Notification' in window) {
+      // Desktop browser fallback
+      let p = Notification.permission;
+      if (p === 'default') p = await Notification.requestPermission();
+      if (p !== 'granted') { toast('Notification permission denied'); return false; }
+    } else {
+      toast('Notifications not available');
+      return false;
+    }
+
+    state.settings.reminderEnabled = true;
+    state.settings.reminderTime    = time;
+    Storage.setSettings(state.settings);
+    updateReminderStatus();
+    toast(`Reminder set for ${time} ✓`);
+    return true;
+  } catch (e) {
+    console.error('enableReminder error', e);
+    toast('Could not set reminder: ' + (e.message || e));
+    return false;
+  }
+}
+
+async function disableReminder() {
+  const LN = getLocalNotifications();
+  if (LN) await LN.cancel({ notifications: [{ id: 1 }] }).catch(() => {});
   state.settings.reminderEnabled = false;
   Storage.setSettings(state.settings);
+  updateReminderStatus();
   toast('Reminder off');
+}
+
+function updateReminderStatus() {
+  const el = $('reminder-status');
+  if (!el) return;
+  if (state.settings.reminderEnabled && state.settings.reminderTime) {
+    el.textContent = '· set at ' + state.settings.reminderTime;
+  } else {
+    el.textContent = '';
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -653,12 +749,24 @@ function setupEventListeners() {
   $('btn-show-translation').addEventListener('click', () => {
     state.showTranslation = !state.showTranslation;
     $('translation-block').classList.toggle('hidden', !state.showTranslation);
-    $('example-display').style.display = '';  // always show example once card loaded
-    const arrow = $('btn-show-translation').querySelector('.reveal-arrow');
-    if (arrow) arrow.classList.toggle('open', state.showTranslation);
+    // In reverse mode: show/hide French example alongside the answer
+    if (state.reverseMode) {
+      const word = scheduler.getWord(currentItem()?.id);
+      const exEl = $('example-display');
+      if (state.showTranslation && word?.example_fr) {
+        exEl.innerHTML = `<span>${esc(word.example_fr)}</span>`;
+        exEl.style.display = '';
+        $('task-line').style.display = '';
+      } else {
+        exEl.innerHTML = '';
+        exEl.style.display = 'none';
+        $('task-line').style.display = 'none';
+      }
+    }
+    const label = state.reverseMode ? ['Hide answer', 'Show answer'] : ['Hide translation', 'Show translation'];
     $('btn-show-translation').innerHTML = state.showTranslation
-      ? '<span class="reveal-arrow open">&#9658;</span> Hide translation'
-      : '<span class="reveal-arrow">&#9658;</span> Show translation';
+      ? `<span class="reveal-arrow open">&#9658;</span> ${label[0]}`
+      : `<span class="reveal-arrow">&#9658;</span> ${label[1]}`;
   });
 
   // Nav
@@ -679,6 +787,7 @@ function setupEventListeners() {
         case 'themes':     showScreen('themes');   break;
         case 'stats':      showScreen('stats');    break;
         case 'help':       showScreen('help');     break;
+        case 'reverse':    toggleReverseMode();    break;
       }
     });
   });
@@ -713,6 +822,7 @@ function setupEventListeners() {
     bOn.classList.add('active'); bOff.classList.remove('active');
     ti.value = state.settings.reminderTime || '09:00';
   }
+  updateReminderStatus();
   bOff.addEventListener('click', () => {
     disableReminder(); bOff.classList.add('active'); bOn.classList.remove('active');
   });
@@ -724,4 +834,10 @@ function setupEventListeners() {
 // ─────────────────────────────────────────────────────────────────
 //  Start
 // ─────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', init);
+// type="module" scripts are deferred — DOM is already ready when this runs.
+// Using DOMContentLoaded can be missed on Android WebViews; call directly.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}

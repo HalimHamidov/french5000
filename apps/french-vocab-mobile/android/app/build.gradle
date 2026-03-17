@@ -22,6 +22,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def suffix = variant.buildType.name == "release" ? "" : "-${variant.buildType.name}"
+            outputFileName = "french5000-v${variant.versionName}${suffix}.apk"
+        }
+    }
 }
 
 repositories {
